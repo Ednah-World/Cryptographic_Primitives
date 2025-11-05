@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Demo — Hashes</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="overlay"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="container">
+    <div class="card">
+      <h1>Demo: Same password → different bcrypt hashes</h1>
+
+      <!-- POST to same URL -->
+      <form class="form" method="post" autocomplete="off">
+        <input name="password" type="password" placeholder="Enter password to demo" required>
+        <button class="btn" type="submit">Generate Hashes</button>
+      </form>
+
+      {% if result %}
+        <div style="width:100%; max-width:720px; margin:12px auto; text-align:left; color:#fff;">
+          <h3 style="color: rgba(217,184,255,1);">Results</h3>
+          <pre style="background:rgba(255,255,255,0.04); padding:12px; border-radius:6px; overflow:auto; white-space:pre-wrap;">
+Hash 1: {{ result['h1'] }}
+Hash 2: {{ result['h2'] }}
+          </pre>
+        </div>
+      {% endif %}
+
+      <p style="margin-top:12px;"><a class="btn" href="{{ url_for('home') }}" style="background:transparent;color:var(--purple);border:2px solid rgba(255,255,255,0.14);">Back to Home</a></p>
+    </div>
+  </div>
+</body>
+</html>

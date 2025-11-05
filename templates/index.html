@@ -1,0 +1,23 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Bcrypt Demo App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Welcome to the Bcrypt Security App</h1>
+        <p>Choose what you'd like to do:</p>
+
+        <div>
+            <a href="{{ url_for('register') }}" class="btn">Register</a>
+            <a href="{{ url_for('login') }}" class="btn">Login</a>
+            <a href="{{ url_for('demo_hashes') }}" class="btn">Demo Hashes</a>
+            <a href="{{ url_for('demo_bruteforce') }}" class="btn">Demo Brute Force</a>
+            <a href="{{ url_for('analyze') }}" class="btn">Analyze Hash</a>
+        </div>
+    </div>
+</body>
+</html>

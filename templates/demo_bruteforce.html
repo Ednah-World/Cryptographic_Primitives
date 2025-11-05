@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Demo — bcrypt cost/time</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="overlay"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="container">
+    <div class="card">
+      <h1>Demo: bcrypt cost/time</h1>
+
+      <form class="form" method="post" autocomplete="off">
+        <input name="password" type="password" placeholder="Enter password to time" required>
+        <input name="rounds" type="number" placeholder="Rounds (e.g. 12)" min="4" max="20">
+        <button class="btn" type="submit">Time hashing</button>
+      </form>
+
+      {% if result %}
+        <div style="margin-top:14px; color:#fff;">
+          <h3 style="color: rgba(217,184,255,1);">Result</h3>
+          <p>Rounds: {{ result['rounds'] }} — Time: {{ "%.3f"|format(result['seconds']) }} seconds</p>
+        </div>
+      {% endif %}
+
+      <p style="margin-top:12px;"><a class="btn" href="{{ url_for('home') }}" style="background:transparent;color:var(--purple);border:2px solid rgba(255,255,255,0.14);">Back to Home</a></p>
+    </div>
+  </div>
+</body>
+</html>

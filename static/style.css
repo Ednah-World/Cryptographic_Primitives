@@ -1,0 +1,189 @@
+:root {
+  --purple: #b366ff;
+  --purple-contrast: #9933ff;
+  --white: #ffffff;
+  --card-bg: rgba(0,0,0,0.62);
+}
+
+/* Apply background using absolute static path (works always) */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", Roboto, system-ui, -apple-system, "Helvetica Neue", Arial;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--purple);
+  background: url("/static/assets/hacker_bg.png") center center / cover no-repeat fixed;
+  background-color: #000; /* fallback */
+}
+
+/* overlay to improve readability */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.72));
+  z-index: 0;
+}
+
+.register-container {
+    background-color: rgba(0, 0, 0, 0.75);
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+    position: relative;
+}
+
+.register-container h1 {
+    margin-bottom: 25px;
+    font-size: 28px;
+    color: #00ff99;
+}
+
+.register-container input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+}
+
+.btn-primary {
+    background-color: #00ff99;
+    color: #000;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #00cc77;
+}
+
+a {
+    color: #00ff99;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* center wrapper used by all pages */
+.container {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 2rem;
+}
+
+/* content card */
+.card {
+  width: 420px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 12px 40px rgba(2,8,23,0.6);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+  text-align: center;
+}
+
+/* headings */
+.card h1, .card h2 {
+  margin: 0 0 12px 0;
+  color: var(--purple);
+}
+
+/* HOME: vertical centered buttons with spacing + larger size */
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 18px;
+  align-items: center;
+  width: 100%;
+}
+
+.btn {
+  display: inline-block;
+  width: 90%;
+  max-width: 360px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--purple), var(--purple-contrast));
+  color: var(--white);
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: transform .08s ease, box-shadow .12s ease;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(147,51,255,0.18);
+}
+
+/* form inputs for register/login/demo/analyze */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+}
+
+input[type="text"], input[type="password"], input[type="number"] {
+  width: 92%;
+  padding: 12px;
+  border-radius: 8px;
+  background: transparent;
+  border: 2px solid var(--white);
+  color: var(--white);
+  text-align: center;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+input::placeholder { color: rgba(255,255,255,0.7); }
+input:focus { border-color: var(--purple); box-shadow: 0 4px 18px rgba(147,51,255,0.12); }
+
+/* flash message */
+.flash {
+  width: 420px;
+  margin: 12px auto;
+  padding: 10px;
+  border-radius: 8px;
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+  text-align: center;
+}
+
+/* responsive */
+@media (max-width:480px) {
+  .card { width: 94%; padding:20px; }
+  .btn { width: 100%; font-size: 15px; }
+  .flash { width: 94%; }
+}
+
+label {
+  color: var(--white);
+  font-weight: 600;
+  text-align: left;
+  display: block;
+  width: 92%;
+  margin: 6px 0 4px;
+}

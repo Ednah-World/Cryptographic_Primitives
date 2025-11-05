@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard — Secure File App</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="overlay"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="container">
+    <div class="card">
+      <h1>Welcome, {{ username }}</h1>
+      <p style="color: rgba(179,102,255,0.95);">You are logged in.</p>
+      <a class="btn" href="{{ url_for('logout') }}">Logout</a>
+      <p style="margin-top:10px;"><a class="btn" href="{{ url_for('home') }}" style="background:transparent;color:var(--purple);border:2px solid rgba(255,255,255,0.14);">Back to Home</a></p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | SecureApp</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* Inline override to ensure background applies */
+    body {
+      background: url("{{ url_for('static', filename='assets/hacker_bg.png') }}") no-repeat center center fixed;
+      background-size: cover;
+      color: #d0a8ff;
+      font-family: 'Consolas', monospace;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .card {
+      background: rgba(0, 0, 0, 0.75);
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(150, 0, 255, 0.5);
+      text-align: center;
+      width: 350px;
+    }
+
+    .card h1 {
+      margin-bottom: 1.5rem;
+      color: #d0a8ff;
+    }
+
+    .form label {
+      display: block;
+      text-align: left;
+      margin: 10px 0 5px 0;
+      font-size: 14px;
+      color: #e0b0ff;
+    }
+
+    .form input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #a020f0;
+      border-radius: 8px;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .password-container {
+      position: relative;
+    }
+
+    .password-container input {
+      width: 100%;
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #d0a8ff;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .btn {
+      width: 100%;
+      background: #8000ff;
+      color: white;
+      padding: 10px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #9a32ff;
+    }
+
+    p {
+      margin-top: 15px;
+      color: #b67fff;
+    }
+
+    a {
+      color: #d78bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Your Account</h1>
+    <form method="POST" action="/register" class="form">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter username" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="Enter email" required>
+
+      <label for="password">Password</label>
+      <div class="password-container">
+        <input type="password" id="password" name="password" placeholder="Enter password" required>
+        <button type="button" class="toggle-password" onclick="togglePassword()">👁</button>
+      </div>
+
+      <button type="submit" class="btn">Register</button>
+    </form>
+    <p>Already have an account? <a href="/login">Login here</a></p>
+  </div>
+
+  <script>
+    function togglePassword() {
+      const passwordInput = document.getElementById('password');
+      const toggleButton = document.querySelector('.toggle-password');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        toggleButton.textContent = '🙈';
+      } else {
+        passwordInput.type = 'password';
+        toggleButton.textContent = '👁';
+      }
+    }
+  </script>
+</body>
+</html>
