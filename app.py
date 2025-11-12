@@ -285,41 +285,28 @@ def decrypt(filename):
     # GET request → show decrypt page
     return render_template('decrypt.html', filename=filename)
 
-
-@app.route('/hash_file', methods=['GET', 'POST'])
+@app.route("/hash_file", methods=["GET", "POST"])
 def hash_file():
-    if 'username' not in session:
-        flash("Please log in first.", "error")
-        return redirect(url_for('login'))
-
     result = None
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            flash("No file provided.", "error")
-            return redirect(request.url)
-        f = request.files['file']
-        if f.filename == '':
-            flash("No selected file.", "error")
-            return redirect(request.url)
+    if request.method == "POST":
+        file = request.files['file']
+        if file:
+            path = os.path.join("uploads/hash_inputs", file.filename)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            file.save(path)
 
-        fname = secure_filename(f.filename)
-        dest = os.path.join(HASH_UPLOAD_DIR, fname)
-        f.save(dest)
+            # Compute SHA-256
+            hex_digest, b64_digest = comp_sha256(path)
+            hash_file_path = path + ".sha256"
+            save_hash_to_file(hex_digest, hash_file_path)
 
-        hex_digest, b64_digest = comp_sha256(dest)
-        # Save hex to sidecar .sha256 file
-        hash_path = dest + ".sha256"
-        save_hash_to_file(hex_digest, hash_path)
-
-        result = {
-            "filename": fname,
-            "hex": hex_digest,
-            "b64": b64_digest,
-            "hash_file": os.path.relpath(hash_path, BASE_DIR)
-        }
-        flash("Hash computed and saved.", "success")
-
-    return render_template('hash_file.html', result=result)
+            result = {
+                "filename": file.filename,
+                "hex": hex_digest,
+                "b64": b64_digest,
+                "hash_file": hash_file_path
+            }
+    return render_template("hash_file.html", result=result)
 
 # Route: verify integrity (upload file and provide hex or choose saved .sha256)
 @app.route('/verify_file', methods=['GET', 'POST'])
@@ -328,30 +315,30 @@ def verify_file():
         flash("Please log in first.", "error")
         return redirect(url_for('login'))
 
+    HASH_UPLOAD_DIR = os.path.join(BASE_DIR, "uploads", "hash_inputs")
+    os.makedirs(HASH_UPLOAD_DIR, exist_ok=True)
+
     verify_result = None
     if request.method == 'POST':
-        # user can either upload a file + enter a hex digest OR pick an existing .sha256 path
-        use_saved = request.form.get('use_saved', '')
-        if use_saved and request.files.get('file') is None:
-            flash("Please upload a file to verify.", "error")
-            return redirect(request.url)
-
-        # get uploaded file
         f = request.files.get('file')
-        if not f or f.filename == '':
-            flash("Please upload the file to verify.", "error")
-            return redirect(request.url)
-
-        fname = secure_filename(f.filename)
-        dest = os.path.join(HASH_UPLOAD_DIR, "verify_" + fname)
-        f.save(dest)
-
-        # determine hex to compare
         hex_input = request.form.get('hex_digest', '').strip()
         saved_path = request.form.get('saved_hash_path', '').strip()
 
+        if not f and not hex_input and not saved_path:
+            flash("Please upload a file or provide a hex digest / .sha256 file.", "error")
+            return redirect(request.url)
+
+        # Save uploaded file if any
+        if f and f.filename != '':
+            fname = secure_filename(f.filename)
+            dest = os.path.join(HASH_UPLOAD_DIR, "verify_" + fname)
+            f.save(dest)
+            file_to_check = dest
+        else:
+            file_to_check = None
+
+        # Determine hex to compare
         if saved_path:
-            # load from file (relative path accepted)
             try:
                 if not os.path.isabs(saved_path):
                     saved_path = os.path.join(BASE_DIR, saved_path)
@@ -362,10 +349,20 @@ def verify_file():
         elif hex_input:
             orig_hex = hex_input
         else:
-            flash("Please provide a hex digest or a saved .sha256 file path.", "error")
+            if file_to_check:
+                # compute hash from uploaded file
+                orig_hex = comp_sha256(file_to_check)[0]
+            else:
+                flash("No hex digest provided.", "error")
+                return redirect(request.url)
+
+        # Verify integrity
+        if file_to_check:
+            ok = verify_integrity(orig_hex, file_to_check)
+        else:
+            flash("No file to verify.", "error")
             return redirect(request.url)
 
-        ok = verify_integrity(orig_hex, dest)
         verify_result = {"ok": ok, "expected": orig_hex}
         flash("Verification complete.", "success" if ok else "error")
 
@@ -378,29 +375,43 @@ def fingerprint():
         flash("Please log in first.", "error")
         return redirect(url_for('login'))
 
+    HASH_UPLOAD_DIR = os.path.join(BASE_DIR, "uploads", "hash_inputs")
+    os.makedirs(HASH_UPLOAD_DIR, exist_ok=True)
+
     qr_path = None
     if request.method == 'POST':
-        # accept either direct hex input, or uploaded file to hash
-        hex_input = request.form.get('hex_digest', '').strip()
         f = request.files.get('file')
-        if not hex_input and (not f or f.filename == ''):
-            flash("Provide a hex digest or upload a file to generate its fingerprint.", "error")
+        hex_input = request.form.get('hex_digest', '').strip()
+        saved_path = request.form.get('saved_hash_path', '').strip()
+
+        if not f and not hex_input and not saved_path:
+            flash("Please upload a file or enter a hex digest.", "error")
             return redirect(request.url)
 
-        if f and f.filename:
+        # Compute SHA-256 if a file is uploaded
+        if f and f.filename != '':
             fname = secure_filename(f.filename)
-            dest = os.path.join(HASH_UPLOAD_DIR, "finger_" + fname)
+            dest = os.path.join(HASH_UPLOAD_DIR, "fp_" + fname)
             f.save(dest)
-            hex_input, _ = comp_sha256(dest)
+            hex_digest = comp_sha256(dest)[0]
+        elif hex_input:
+            hex_digest = hex_input
+        elif saved_path:
+            try:
+                if not os.path.isabs(saved_path):
+                    saved_path = os.path.join(BASE_DIR, saved_path)
+                hex_digest = load_hash_from_file(saved_path)
+            except Exception as e:
+                flash(f"Could not load saved hash: {e}", "error")
+                return redirect(request.url)
+        else:
+            flash("Cannot determine hex digest.", "error")
+            return redirect(request.url)
 
-        # now hex_input contains the digest
+        # Generate QR code
         try:
-            qr_rel = os.path.join("static", "generated", f"qr_{int(time.time())}.png")
-            qr_abs = os.path.join(BASE_DIR, qr_rel)
-            os.makedirs(os.path.dirname(qr_abs), exist_ok=True)
-            gen_fingerprint(hex_input, qr_abs)
-            qr_path = "/" + qr_rel  # URL path
-            flash("Fingerprint (QR) generated.", "success")
+            qr_path = gen_fingerprint(hex_digest, output_path=os.path.join("static", "hash_qr.png"))
+            flash("QR fingerprint generated.", "success")
         except Exception as e:
             flash(f"Could not generate QR: {e}", "error")
 
